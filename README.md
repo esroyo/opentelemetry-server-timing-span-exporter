@@ -9,7 +9,7 @@ An expoter that can be used to output a [Server-Timing](https://developer.mozill
 ```ts
 import opentelemetry from '@opentelemetry/api';
 import { BasicTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { ServerTimingSpanExporter } from '@esroyo/opentelemetry-server-timing-span-exporter';
+import { ServerTimingSpanExporter } from '@esroyo/otlp-server-timing-span-exporter';
 
 const provider = new BasicTracerProvider();
 const exporter = new ServerTimingSpanExporter();
