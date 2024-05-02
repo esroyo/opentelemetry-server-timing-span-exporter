@@ -1,6 +1,6 @@
 # OpenTelemetry (OTLP) ServerTimingSpanExporter
 
-[![codecov](https://codecov.io/gh/esroyo/opentelemetry-server-timing-span-exporter/graph/badge.svg?token=OVVLMQFJ3A)](https://codecov.io/gh/esroyo/opentelemetry-server-timing-span-exporter)
+[![codecov](https://codecov.io/gh/esroyo/opentelemetry-server-timing-span-exporter/graph/badge.svg?token=XIQYWSW3H8)](https://codecov.io/gh/esroyo/opentelemetry-server-timing-span-exporter)
 
 An expoter that can be used to output a [Server-Timing](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server-Timing) header.
  
