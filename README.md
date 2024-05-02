@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/gh/esroyo/opentelemetry-server-timing-span-exporter/graph/badge.svg?token=XIQYWSW3H8)](https://codecov.io/gh/esroyo/opentelemetry-server-timing-span-exporter)
 
-An expoter that can be used to output a [Server-Timing](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server-Timing) header.
+An exporter that can be used to output a [Server-Timing](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server-Timing) header.
  
 ## Usage
 
