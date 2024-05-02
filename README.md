@@ -1,4 +1,4 @@
-# opentelemetry ServerTimingSpanExporter
+# OpenTelemetry (OTLP) ServerTimingSpanExporter
 
 [![codecov](https://codecov.io/gh/esroyo/opentelemetry-server-timing-span-exporter/graph/badge.svg?token=OVVLMQFJ3A)](https://codecov.io/gh/esroyo/opentelemetry-server-timing-span-exporter)
 

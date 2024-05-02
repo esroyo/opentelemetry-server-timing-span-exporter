@@ -1,5 +1,5 @@
 {
-  "name": "@esroyo/opentelemetry-server-timing-span-exporter",
+  "name": "@esroyo/otlp-server-timing-span-exporter",
   "version": "1.0.0",
   "exports": "./mod.ts",
   "tasks": {
