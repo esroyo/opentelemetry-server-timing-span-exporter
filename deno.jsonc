@@ -1,5 +1,5 @@
 {
-  "name": "@esroyo/otlp-server-timing-span-exporter",
+  "name": "@esroyo/otel-server-timing-span-exporter",
   "version": "1.0.1",
   "exports": "./mod.ts",
   "tasks": {

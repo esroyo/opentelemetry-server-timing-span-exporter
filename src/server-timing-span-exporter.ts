@@ -29,7 +29,7 @@ import { hrTimeToMilliseconds } from './utils.ts';
  * ```ts
  * import opentelemetry from '@opentelemetry/api';
  * import { BasicTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
- * import { ServerTimingSpanExporter } from '@esroyo/otlp-server-timing-span-exporter';
+ * import { ServerTimingSpanExporter } from '@esroyo/otel-server-timing-span-exporter';
  *
  * const provider = new BasicTracerProvider();
  * const exporter = new ServerTimingSpanExporter();
