@@ -1,4 +1,10 @@
 {
+    "packageFiles": [
+        {
+            "filename": "deno.jsonc",
+            "type": "json"
+        }
+    ],
     "types": [
         { "type": "feat", "section": "Features" },
         { "type": "fix", "section": "Bug Fixes" },
