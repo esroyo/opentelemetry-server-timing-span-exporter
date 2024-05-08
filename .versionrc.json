@@ -1,5 +1,5 @@
 {
-    "packageFiles": [
+    "bumpFiles": [
         {
             "filename": "deno.jsonc",
             "type": "json"
