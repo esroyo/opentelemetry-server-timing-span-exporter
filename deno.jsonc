@@ -6,7 +6,7 @@
     "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
     "fmt": "deno fmt src/ deps.ts dev_deps.ts",
     "tag-version": "npx commit-and-tag-version && git push --follow-tags origin main",
-    "test": "deno test"
+    "test": "deno test --allow-hrtime"
   },
   "fmt": {
     "indentWidth": 4,

@@ -5,12 +5,12 @@ import {
 } from '../deps.ts';
 
 export type TraceId = SpanContext['traceId'];
-export type PartialTimedEvent = Pick<TimedEvent, 'name'>;
+export type PartialTimedEvent = Pick<TimedEvent, 'name' | 'time'>;
 export type HasPartialSpanContext = {
     spanContext: () => Pick<SpanContext, 'traceId'>;
 };
 export type PartialReadableSpan =
-    & Pick<ReadableSpan, 'name' | 'duration'>
+    & Pick<ReadableSpan, 'name' | 'duration' | 'endTime'>
     & { events: PartialTimedEvent[] }
     & HasPartialSpanContext;
 export type GetServerTimingHeaderOptions = {

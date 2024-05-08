@@ -1,6 +1,8 @@
 import {
     type ExportResult,
     ExportResultCode,
+    hrTimeToMilliseconds,
+    hrTimeToNanoseconds,
     type ReadableSpan,
     type Span,
     type SpanExporter,
@@ -12,8 +14,6 @@ import type {
     PartialReadableSpan,
     TraceId,
 } from './types.ts';
-
-import { hrTimeToMilliseconds } from './utils.ts';
 
 /**
  * This class can be used to output a [Server-Timing](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Server-Timing) header.
@@ -126,6 +126,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
             'Server-Timing',
             spanList
                 .flatMap((span) => this._exportInfo(span, includeEvents))
+                .toSorted((a, b) => a.endTimeNanos - b.endTimeNanos)
                 .map(({ name, duration }) =>
                     `${name}${
                         typeof duration !== 'number' ? '' : `;dur=${duration}`
@@ -141,11 +142,16 @@ export class ServerTimingSpanExporter implements SpanExporter {
     private _exportInfo(span: PartialReadableSpan, includeEvents: boolean) {
         const entry = {
             duration: hrTimeToMilliseconds(span.duration),
+            endTimeNanos: hrTimeToNanoseconds(span.endTime),
             name: span.name,
         };
         return includeEvents
             ? [
-                ...span.events.map(({ name }) => ({ name, duration: null })),
+                ...span.events.map(({ name, time }) => ({
+                    name,
+                    duration: null,
+                    endTimeNanos: hrTimeToNanoseconds(time),
+                })),
                 entry,
             ]
             : [entry];

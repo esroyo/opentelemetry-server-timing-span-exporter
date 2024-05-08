@@ -1,9 +1,13 @@
-import { ExportResult, ExportResultCode } from '../deps.ts';
+import {
+    ExportResult,
+    ExportResultCode,
+    hrTime,
+    millisToHrTime,
+} from '../deps.ts';
 import { assertEquals, spy } from '../dev_deps.ts';
-import { PartialReadableSpan, TraceId } from './types.ts';
+import { PartialReadableSpan, PartialTimedEvent, TraceId } from './types.ts';
 
 import { ServerTimingSpanExporter } from './server-timing-span-exporter.ts';
-import { millisToHrTime } from 'npm:@opentelemetry/core@1.24.0';
 
 type ReadableSpanOptions = {
     name: PartialReadableSpan['name'];
@@ -11,11 +15,15 @@ type ReadableSpanOptions = {
     events?: PartialReadableSpan['events'];
     traceId: TraceId;
 };
-
+const createEvent = (name: string): PartialTimedEvent => ({
+    name,
+    time: hrTime(),
+});
 const createReadableSpan = (
     { name, duration, events = [], traceId }: ReadableSpanOptions,
 ) => ({
     name,
+    endTime: hrTime(),
     duration,
     events,
     spanContext: () => ({ traceId }),
@@ -166,7 +174,26 @@ Deno.test('ServerTimingSpanExporter', async (t) => {
             'should include the span events by default',
             async (t) => {
                 const span = createReadableSpan({
-                    events: [{ name: 'cache-miss' }, { name: 'fetch' }],
+                    events: [createEvent('cache-miss'), createEvent('fetch')],
+                    name: 'main',
+                    duration: millisToHrTime(80),
+                    traceId: '1',
+                });
+                const doneSpy = spy((_result: ExportResult) => {});
+                exporter.export([span], doneSpy);
+
+                assertEquals(
+                    exporter.getServerTimingHeader('1'),
+                    ['Server-Timing', 'cache-miss,fetch,main;dur=80'],
+                );
+            },
+        );
+
+        await t.step(
+            'should include the span events by default',
+            async (t) => {
+                const span = createReadableSpan({
+                    events: [createEvent('cache-miss'), createEvent('fetch')],
                     name: 'main',
                     duration: millisToHrTime(80),
                     traceId: '1',
@@ -185,7 +212,7 @@ Deno.test('ServerTimingSpanExporter', async (t) => {
             'should be possible to exclude the span events by param',
             async (t) => {
                 const span = createReadableSpan({
-                    events: [{ name: 'cache-miss' }, { name: 'fetch' }],
+                    events: [createEvent('cache-miss'), createEvent('fetch')],
                     name: 'main',
                     duration: millisToHrTime(80),
                     traceId: '1',
@@ -198,6 +225,34 @@ Deno.test('ServerTimingSpanExporter', async (t) => {
                         includeEvents: false,
                     }),
                     ['Server-Timing', 'main;dur=80'],
+                );
+            },
+        );
+
+        await t.step(
+            'should include the span events sorted by time',
+            async (t) => {
+                const span = createReadableSpan({
+                    events: [createEvent('cache-miss')],
+                    name: 'main',
+                    duration: millisToHrTime(80),
+                    traceId: '1',
+                });
+                const secondSpan = createReadableSpan({
+                    name: 'post-task',
+                    duration: millisToHrTime(20),
+                    traceId: '1',
+                });
+                span.events.push(createEvent('late'));
+                const doneSpy = spy((_result: ExportResult) => {});
+                exporter.export([span, secondSpan], doneSpy);
+
+                assertEquals(
+                    exporter.getServerTimingHeader('1'),
+                    [
+                        'Server-Timing',
+                        'cache-miss,main;dur=80,post-task;dur=20,late',
+                    ],
                 );
             },
         );

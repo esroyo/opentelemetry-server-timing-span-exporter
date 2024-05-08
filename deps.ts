@@ -1,4 +1,10 @@
-export { ExportResultCode } from 'npm:@opentelemetry/core@1.24.0';
+export {
+    ExportResultCode,
+    hrTime,
+    hrTimeToMilliseconds,
+    hrTimeToNanoseconds,
+    millisToHrTime,
+} from 'npm:@opentelemetry/core@1.24.0';
 export type { ExportResult } from 'npm:@opentelemetry/core@1.24.0';
 export type {
     ReadableSpan,
