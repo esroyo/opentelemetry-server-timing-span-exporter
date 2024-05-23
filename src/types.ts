@@ -16,4 +16,5 @@ export type PartialReadableSpan =
 export type GetServerTimingHeaderOptions = {
     includeEvents?: boolean;
     flush?: boolean;
+    precision?: number;
 };

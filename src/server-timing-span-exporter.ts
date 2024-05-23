@@ -112,8 +112,8 @@ export class ServerTimingSpanExporter implements SpanExporter {
      */
     getServerTimingHeader(
         traceIdOrSpan: TraceId | HasPartialSpanContext,
-        { includeEvents = true, flush = true }: GetServerTimingHeaderOptions =
-            {},
+        { includeEvents = true, flush = true, precision }:
+            GetServerTimingHeaderOptions = {},
     ): ['Server-Timing', string] {
         const traceId = typeof traceIdOrSpan === 'string'
             ? traceIdOrSpan
@@ -122,6 +122,9 @@ export class ServerTimingSpanExporter implements SpanExporter {
         if (flush) {
             this._finishedSpans.delete(traceId);
         }
+        const formatDuration = typeof precision === 'number'
+            ? (num: number) => Number(num.toFixed(precision))
+            : (num: number) => num;
         return [
             'Server-Timing',
             spanList
@@ -129,7 +132,9 @@ export class ServerTimingSpanExporter implements SpanExporter {
                 .toSorted((a, b) => a.endTimeNanos - b.endTimeNanos)
                 .map(({ name, duration }) =>
                     `${name}${
-                        typeof duration !== 'number' ? '' : `;dur=${duration}`
+                        typeof duration !== 'number'
+                            ? ''
+                            : `;dur=${formatDuration(duration)}`
                     }`
                 )
                 .join(','),

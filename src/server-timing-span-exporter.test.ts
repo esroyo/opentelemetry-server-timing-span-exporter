@@ -230,6 +230,57 @@ Deno.test('ServerTimingSpanExporter', async (t) => {
         );
 
         await t.step(
+            'should be possible to specify the precision by param',
+            async (t) => {
+                const span = createReadableSpan({
+                    name: 'main',
+                    duration: millisToHrTime(10.12345),
+                    traceId: '1',
+                });
+                const secondSpan = createReadableSpan({
+                    name: 'post-task',
+                    duration: millisToHrTime(5),
+                    traceId: '1',
+                });
+                const doneSpy = spy((_result: ExportResult) => {});
+                exporter.export([span, secondSpan], doneSpy);
+
+                // Without specifying precision
+                assertEquals(
+                    exporter.getServerTimingHeader('1', { flush: false }),
+                    [
+                        'Server-Timing',
+                        'main;dur=10.12345,post-task;dur=5',
+                    ],
+                );
+
+                // With precision >0
+                assertEquals(
+                    exporter.getServerTimingHeader('1', {
+                        flush: false,
+                        precision: 2,
+                    }),
+                    [
+                        'Server-Timing',
+                        'main;dur=10.12,post-task;dur=5',
+                    ],
+                );
+
+                // With precision 0
+                assertEquals(
+                    exporter.getServerTimingHeader('1', {
+                        flush: true,
+                        precision: 0,
+                    }),
+                    [
+                        'Server-Timing',
+                        'main;dur=10,post-task;dur=5',
+                    ],
+                );
+            },
+        );
+
+        await t.step(
             'should include the span events sorted by time',
             async (t) => {
                 const span = createReadableSpan({
