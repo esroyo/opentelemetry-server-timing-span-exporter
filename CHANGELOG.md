@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.3](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/compare/v2.0.2...v2.0.3) (2024-10-16)
+
+
+### Bug Fixes
+
+* push the parent breadcrumb into "desc" field ([86591f1](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/commit/86591f17040b49151a4d07365fa5805bde21960f))
+
 ## [2.0.2](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/compare/v2.0.1...v2.0.2) (2024-10-16)
 
 ## [2.0.1](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/compare/v2.0.0...v2.0.1) (2024-10-16)
