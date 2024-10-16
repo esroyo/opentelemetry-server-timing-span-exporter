@@ -171,6 +171,53 @@ Deno.test('ServerTimingSpanExporter', async (t) => {
                     }),
                     [
                         'Server-Timing',
+                        'main;dur=110,child;dur=42,other-child;dur=60,child;desc="other-child > child";dur=40',
+                    ],
+                );
+            },
+        );
+
+        await t.step(
+            'should build a breadcrumb hierarchy for span names with { includeRootParent: true }',
+            async (t) => {
+                const mainSpan = createReadableSpan({
+                    name: 'main',
+                    duration: millisToHrTime(110),
+                    traceId: '1',
+                });
+                const childSpan = createReadableSpan({
+                    name: 'child',
+                    duration: millisToHrTime(42),
+                    traceId: '1',
+                    parentSpanId: mainSpan.spanContext().spanId,
+                });
+                const otherChildSpan = createReadableSpan({
+                    name: 'other-child',
+                    duration: millisToHrTime(60),
+                    traceId: '1',
+                    parentSpanId: mainSpan.spanContext().spanId,
+                });
+                const childChildSpan = createReadableSpan({
+                    name: 'child',
+                    duration: millisToHrTime(40),
+                    traceId: '1',
+                    parentSpanId: otherChildSpan.spanContext().spanId,
+                });
+                const doneSpy = spy((_result: ExportResult) => {});
+                exporter.export([
+                    mainSpan,
+                    childSpan,
+                    otherChildSpan,
+                    childChildSpan,
+                ], doneSpy);
+
+                assertEquals(
+                    exporter.getServerTimingHeader(mainSpan, {
+                        parentNameGlue: ' > ',
+                        includeRootParentName: true,
+                    }),
+                    [
+                        'Server-Timing',
                         'main;dur=110,child;desc="main > child";dur=42,other-child;desc="main > other-child";dur=60,child;desc="main > other-child > child";dur=40',
                     ],
                 );

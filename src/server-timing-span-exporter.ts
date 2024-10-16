@@ -120,6 +120,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
             precision,
             includeParentName = true,
             parentNameGlue = ' > ',
+            includeRootParentName = false,
         }: GetServerTimingHeaderOptions = {},
     ): ['Server-Timing', string] {
         const traceId = typeof traceIdOrSpan === 'string'
@@ -144,6 +145,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
                                 span,
                                 spanList,
                                 parentNameGlue,
+                                includeRootParentName,
                             )
                             : '',
                     )
@@ -198,6 +200,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
         span: PartialReadableSpan,
         spanList: PartialReadableSpan[],
         parentNameGlue: string,
+        includeRootParentName: boolean,
     ): string {
         const parentSpan = spanList.find((otherSpan) =>
             otherSpan.spanContext().spanId === span.parentSpanId
@@ -205,11 +208,16 @@ export class ServerTimingSpanExporter implements SpanExporter {
         if (!parentSpan) {
             return '';
         }
+        const parentIsRoot = !parentSpan.parentSpanId;
+        if (parentIsRoot && !includeRootParentName) {
+            return '';
+        }
         return `${
             this._buildParentNameBreadcrumb(
                 parentSpan,
                 spanList,
                 parentNameGlue,
+                includeRootParentName,
             )
         }${parentSpan.name}${parentNameGlue}`;
     }
