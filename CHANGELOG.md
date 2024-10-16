@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.0](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/compare/v1.2.0...v2.0.0) (2024-10-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* include parent names by default in each exported span
+
+### Features
+
+* include parent names by default in each exported span ([63290b3](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/commit/63290b3cba1e4a367b8e945f75d875f0c835017b))
+
 ## [1.2.0](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/compare/v1.1.2...v1.2.0) (2024-05-23)
 
 
