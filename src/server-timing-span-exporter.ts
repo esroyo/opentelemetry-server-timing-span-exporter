@@ -54,7 +54,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
      */
     protected _stopped: boolean = false;
 
-    protected _finishedSpans = new Map<TraceId, PartialReadableSpan[]>();
+    protected _finishedSpans: Map<TraceId, PartialReadableSpan[]> = new Map();
 
     /**
      * Called to export sampled {@link ReadableSpan}s.
@@ -167,7 +167,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
         span: PartialReadableSpan,
         includeEvents: boolean,
         namePrefix = '',
-    ) {
+    ): Array<{ endTimeNanos: number; name: string; duration: number | null }> {
         const entry = {
             duration: hrTimeToMilliseconds(span.duration),
             endTimeNanos: hrTimeToNanoseconds(span.endTime),
