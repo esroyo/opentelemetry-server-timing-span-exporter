@@ -119,7 +119,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
             flush = true,
             precision,
             includeParentName = true,
-            parentNameGlue = '>',
+            parentNameGlue = ' > ',
         }: GetServerTimingHeaderOptions = {},
     ): ['Server-Timing', string] {
         const traceId = typeof traceIdOrSpan === 'string'
@@ -149,8 +149,8 @@ export class ServerTimingSpanExporter implements SpanExporter {
                     )
                 )
                 .toSorted((a, b) => a.endTimeNanos - b.endTimeNanos)
-                .map(({ name, duration }) =>
-                    `${name}${
+                .map(({ name, desc, duration }) =>
+                    `${name}${desc ? `;desc=${JSON.stringify(desc)}` : ''}${
                         typeof duration !== 'number'
                             ? ''
                             : `;dur=${formatDuration(duration)}`
@@ -166,17 +166,26 @@ export class ServerTimingSpanExporter implements SpanExporter {
     protected _exportInfo(
         span: PartialReadableSpan,
         includeEvents: boolean,
-        namePrefix = '',
-    ): Array<{ endTimeNanos: number; name: string; duration: number | null }> {
+        parentPrefix = '',
+    ): Array<
+        {
+            endTimeNanos: number;
+            name: string;
+            desc: string | null;
+            duration: number | null;
+        }
+    > {
         const entry = {
             duration: hrTimeToMilliseconds(span.duration),
             endTimeNanos: hrTimeToNanoseconds(span.endTime),
-            name: `${namePrefix}${span.name}`,
+            name: span.name,
+            desc: parentPrefix ? `${parentPrefix}${span.name}` : null,
         };
         return includeEvents
             ? [
                 ...span.events.map(({ name, time }) => ({
-                    name: `${namePrefix}${name}`,
+                    name,
+                    desc: parentPrefix ? `${parentPrefix}${name}` : null,
                     duration: null,
                     endTimeNanos: hrTimeToNanoseconds(time),
                 })),

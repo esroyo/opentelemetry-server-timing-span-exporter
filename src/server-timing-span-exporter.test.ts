@@ -171,7 +171,7 @@ Deno.test('ServerTimingSpanExporter', async (t) => {
                     }),
                     [
                         'Server-Timing',
-                        'main;dur=110,main > child;dur=42,main > other-child;dur=60,main > other-child > child;dur=40',
+                        'main;dur=110,child;desc="main > child";dur=42,other-child;desc="main > other-child";dur=60,child;desc="main > other-child > child";dur=40',
                     ],
                 );
             },
