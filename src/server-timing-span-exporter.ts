@@ -52,9 +52,9 @@ export class ServerTimingSpanExporter implements SpanExporter {
      * Indicates if the exporter has been "shutdown."
      * When false, exported spans will not be stored in-memory.
      */
-    private _stopped: boolean = false;
+    protected _stopped: boolean = false;
 
-    private _finishedSpans = new Map<TraceId, PartialReadableSpan[]>();
+    protected _finishedSpans = new Map<TraceId, PartialReadableSpan[]>();
 
     /**
      * Called to export sampled {@link ReadableSpan}s.
@@ -119,7 +119,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
             flush = true,
             precision,
             includeParentName = true,
-            parentNameGlue = '→',
+            parentNameGlue = '>',
         }: GetServerTimingHeaderOptions = {},
     ): ['Server-Timing', string] {
         const traceId = typeof traceIdOrSpan === 'string'
@@ -163,7 +163,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
     /**
      * Converts span info into simple { name, duration } objects.
      */
-    private _exportInfo(
+    protected _exportInfo(
         span: PartialReadableSpan,
         includeEvents: boolean,
         namePrefix = '',
@@ -185,7 +185,7 @@ export class ServerTimingSpanExporter implements SpanExporter {
             : [entry];
     }
 
-    private _buildParentNameBreadcrumb(
+    protected _buildParentNameBreadcrumb(
         span: PartialReadableSpan,
         spanList: PartialReadableSpan[],
         parentNameGlue: string,
