@@ -1,6 +1,6 @@
 {
     "name": "@esroyo/otel-server-timing-span-exporter",
-    "version": "2.0.3",
+    "version": "2.1.0",
     "exports": "./mod.ts",
     "tasks": {
         "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
