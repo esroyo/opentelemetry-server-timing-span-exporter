@@ -108,12 +108,19 @@ export class ServerTimingSpanExporter implements SpanExporter {
      *
      * @param traceIdOrSpan - The root Span or its traceId to build the headers for.
      * @param options.includeEvents - The span events will be included as metrics without duration.
+     * @param options.includeParentName - The span parent names will be included in each span (like a breadcrumb).
+     * @param options.parentNameGlue - The string to be used as glue to build the parent span name breadcrumb hierarchy.
      * @param options.flush - Remove the spans from memory
      */
     getServerTimingHeader(
         traceIdOrSpan: TraceId | HasPartialSpanContext,
-        { includeEvents = true, flush = true, precision }:
-            GetServerTimingHeaderOptions = {},
+        {
+            includeEvents = true,
+            flush = true,
+            precision,
+            includeParentName = true,
+            parentNameGlue = '→',
+        }: GetServerTimingHeaderOptions = {},
     ): ['Server-Timing', string] {
         const traceId = typeof traceIdOrSpan === 'string'
             ? traceIdOrSpan
@@ -128,7 +135,19 @@ export class ServerTimingSpanExporter implements SpanExporter {
         return [
             'Server-Timing',
             spanList
-                .flatMap((span) => this._exportInfo(span, includeEvents))
+                .flatMap((span) =>
+                    this._exportInfo(
+                        span,
+                        includeEvents,
+                        includeParentName
+                            ? this._buildParentNameBreadcrumb(
+                                span,
+                                spanList,
+                                parentNameGlue,
+                            )
+                            : '',
+                    )
+                )
                 .toSorted((a, b) => a.endTimeNanos - b.endTimeNanos)
                 .map(({ name, duration }) =>
                     `${name}${
@@ -144,21 +163,45 @@ export class ServerTimingSpanExporter implements SpanExporter {
     /**
      * Converts span info into simple { name, duration } objects.
      */
-    private _exportInfo(span: PartialReadableSpan, includeEvents: boolean) {
+    private _exportInfo(
+        span: PartialReadableSpan,
+        includeEvents: boolean,
+        namePrefix = '',
+    ) {
         const entry = {
             duration: hrTimeToMilliseconds(span.duration),
             endTimeNanos: hrTimeToNanoseconds(span.endTime),
-            name: span.name,
+            name: `${namePrefix}${span.name}`,
         };
         return includeEvents
             ? [
                 ...span.events.map(({ name, time }) => ({
-                    name,
+                    name: `${namePrefix}${name}`,
                     duration: null,
                     endTimeNanos: hrTimeToNanoseconds(time),
                 })),
                 entry,
             ]
             : [entry];
+    }
+
+    private _buildParentNameBreadcrumb(
+        span: PartialReadableSpan,
+        spanList: PartialReadableSpan[],
+        parentNameGlue: string,
+    ): string {
+        const parentSpan = spanList.find((otherSpan) =>
+            otherSpan.spanContext().spanId === span.parentSpanId
+        );
+        if (!parentSpan) {
+            return '';
+        }
+        return `${
+            this._buildParentNameBreadcrumb(
+                parentSpan,
+                spanList,
+                parentNameGlue,
+            )
+        }${parentSpan.name}${parentNameGlue}`;
     }
 }

@@ -5,7 +5,12 @@ import {
     millisToHrTime,
 } from '../deps.ts';
 import { assertEquals, spy } from '../dev_deps.ts';
-import { PartialReadableSpan, PartialTimedEvent, TraceId } from './types.ts';
+import {
+    PartialReadableSpan,
+    PartialTimedEvent,
+    SpanId,
+    TraceId,
+} from './types.ts';
 
 import { ServerTimingSpanExporter } from './server-timing-span-exporter.ts';
 
@@ -14,19 +19,29 @@ type ReadableSpanOptions = {
     duration: PartialReadableSpan['duration'];
     events?: PartialReadableSpan['events'];
     traceId: TraceId;
+    spanId?: SpanId;
+    parentSpanId?: SpanId;
 };
 const createEvent = (name: string): PartialTimedEvent => ({
     name,
     time: hrTime(),
 });
 const createReadableSpan = (
-    { name, duration, events = [], traceId }: ReadableSpanOptions,
-) => ({
+    {
+        name,
+        duration,
+        events = [],
+        parentSpanId,
+        spanId = crypto.randomUUID(),
+        traceId,
+    }: ReadableSpanOptions,
+): PartialReadableSpan => ({
     name,
     endTime: hrTime(),
     duration,
     events,
-    spanContext: () => ({ traceId }),
+    parentSpanId,
+    spanContext: () => ({ traceId, spanId }),
 });
 
 Deno.test('ServerTimingSpanExporter', async (t) => {
@@ -112,6 +127,98 @@ Deno.test('ServerTimingSpanExporter', async (t) => {
                 assertEquals(
                     exporter.getServerTimingHeader(span),
                     ['Server-Timing', 'main;dur=80'],
+                );
+            },
+        );
+
+        await t.step(
+            'should build a breadcrumb hierarchy for span names (by default)',
+            async (t) => {
+                const mainSpan = createReadableSpan({
+                    name: 'main',
+                    duration: millisToHrTime(110),
+                    traceId: '1',
+                });
+                const childSpan = createReadableSpan({
+                    name: 'child',
+                    duration: millisToHrTime(42),
+                    traceId: '1',
+                    parentSpanId: mainSpan.spanContext().spanId,
+                });
+                const otherChildSpan = createReadableSpan({
+                    name: 'other-child',
+                    duration: millisToHrTime(60),
+                    traceId: '1',
+                    parentSpanId: mainSpan.spanContext().spanId,
+                });
+                const childChildSpan = createReadableSpan({
+                    name: 'child',
+                    duration: millisToHrTime(40),
+                    traceId: '1',
+                    parentSpanId: otherChildSpan.spanContext().spanId,
+                });
+                const doneSpy = spy((_result: ExportResult) => {});
+                exporter.export([
+                    mainSpan,
+                    childSpan,
+                    otherChildSpan,
+                    childChildSpan,
+                ], doneSpy);
+
+                assertEquals(
+                    exporter.getServerTimingHeader(mainSpan, {
+                        parentNameGlue: ' > ',
+                    }),
+                    [
+                        'Server-Timing',
+                        'main;dur=110,main > child;dur=42,main > other-child;dur=60,main > other-child > child;dur=40',
+                    ],
+                );
+            },
+        );
+
+        await t.step(
+            'should not build a breadcrumb hierarchy for span names when option { includeParentName: false } is used',
+            async (t) => {
+                const mainSpan = createReadableSpan({
+                    name: 'main',
+                    duration: millisToHrTime(110),
+                    traceId: '1',
+                });
+                const childSpan = createReadableSpan({
+                    name: 'child',
+                    duration: millisToHrTime(42),
+                    traceId: '1',
+                    parentSpanId: mainSpan.spanContext().spanId,
+                });
+                const otherChildSpan = createReadableSpan({
+                    name: 'other-child',
+                    duration: millisToHrTime(60),
+                    traceId: '1',
+                    parentSpanId: mainSpan.spanContext().spanId,
+                });
+                const childChildSpan = createReadableSpan({
+                    name: 'child',
+                    duration: millisToHrTime(40),
+                    traceId: '1',
+                    parentSpanId: otherChildSpan.spanContext().spanId,
+                });
+                const doneSpy = spy((_result: ExportResult) => {});
+                exporter.export([
+                    mainSpan,
+                    childSpan,
+                    otherChildSpan,
+                    childChildSpan,
+                ], doneSpy);
+
+                assertEquals(
+                    exporter.getServerTimingHeader(mainSpan, {
+                        includeParentName: false,
+                    }),
+                    [
+                        'Server-Timing',
+                        'main;dur=110,child;dur=42,other-child;dur=60,child;dur=40',
+                    ],
                 );
             },
         );
