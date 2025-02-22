@@ -1,10 +1,8 @@
-import {
-    ExportResult,
-    ExportResultCode,
-    hrTime,
-    millisToHrTime,
-} from '../deps.ts';
-import { assertEquals, spy } from '../dev_deps.ts';
+import { ExportResultCode, hrTime, millisToHrTime } from '@opentelemetry/core';
+import type { ExportResult } from '@opentelemetry/core';
+import { assertEquals } from '@std/assert';
+import { spy } from '@std/testing/mock';
+
 import {
     PartialReadableSpan,
     PartialTimedEvent,

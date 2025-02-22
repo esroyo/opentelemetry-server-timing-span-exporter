@@ -1,8 +1,5 @@
-import {
-    type ReadableSpan,
-    type SpanContext,
-    type TimedEvent,
-} from '../deps.ts';
+import type { ReadableSpan, TimedEvent } from '@opentelemetry/sdk-trace-base';
+import type { SpanContext } from '@opentelemetry/api';
 
 export type TraceId = SpanContext['traceId'];
 export type SpanId = SpanContext['spanId'];

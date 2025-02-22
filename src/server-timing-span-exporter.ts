@@ -1,12 +1,11 @@
 import {
-    type ExportResult,
     ExportResultCode,
     hrTimeToMilliseconds,
     hrTimeToNanoseconds,
-    type ReadableSpan,
-    type Span,
-    type SpanExporter,
-} from '../deps.ts';
+} from '@opentelemetry/core';
+import type { ExportResult } from '@opentelemetry/core';
+import type { ReadableSpan, SpanExporter } from '@opentelemetry/sdk-trace-base';
+import type { Span } from '@opentelemetry/api';
 
 import type {
     GetServerTimingHeaderOptions,
