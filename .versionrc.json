@@ -1,7 +1,7 @@
 {
     "bumpFiles": [
         {
-            "filename": "deno.json",
+            "filename": "deno.jsonc",
             "type": "json"
         }
     ],

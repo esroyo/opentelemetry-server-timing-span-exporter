@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.0.0](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/compare/v2.1.0...v3.0.0) (2025-02-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* update OpenTelemetry dep versions + use importmap
+
+### Other
+
+* update OpenTelemetry dep versions + use importmap ([ab147fc](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/commit/ab147fc6ba31f877b884cc94315fe71903302489))
+
 ## [2.1.0](https://github.com/esroyo/opentelemetry-server-timing-span-exporter/compare/v2.0.3...v2.1.0) (2024-10-16)
 
 
